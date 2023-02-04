@@ -23,7 +23,7 @@ void FramelessWindow::mergeTitlebar()
     window.titleVisibility = NSWindowTitleHidden;
     window.styleMask |= NSWindowStyleMaskFullSizeContentView;
 
-    setStyleSheet("background-color:white;");
+//    setStyleSheet("background-color:white;");
 }
 
 

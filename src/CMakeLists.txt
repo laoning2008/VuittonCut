@@ -10,7 +10,11 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)
 
 set(Qt5_DIR $ENV{QTDIR}/lib/cmake/Qt5)
 
-CPMAddPackage(NAME vcpkg GITHUB_REPOSITORY microsoft/vcpkg GIT_TAG 6f7ffeb18f99796233b958aaaf14ec7bd4fb64b2)
+CPMAddPackage(
+    NAME vcpkg
+    GITHUB_REPOSITORY microsoft/vcpkg
+    GIT_TAG 6f7ffeb18f99796233b958aaaf14ec7bd4fb64b2
+    )
 
 set(VCPKG_DIR ${vcpkg_SOURCE_DIR})
 set(VCPKG_PACKAGE ${VCPKG_DIR}/installed)
@@ -24,11 +28,6 @@ ELSEIF (APPLE)
     set(VCPKG_TARGET_TRIPLET "x64-osx")
 
     set(CMAKE_OSX_ARCHITECTURES "x86_64")
-
-#    set(COMPLIER_FLAGS "-Wno-reserved-user-defined-literal")
-#    list(APPEND CMAKE_C_FLAGS ${COMPLIER_FLAGS})
-#    list(APPEND CMAKE_CXX_FLAGS ${COMPLIER_FLAGS})
-
 
     set (ENV{PATH}  $ENV{PATH}:/opt/local/bin:/opt/homebrew/bin)
 ELSE ()
@@ -50,16 +49,24 @@ ENDIF()
 
 set(FFMPEG_LIBRARY_NAME FFmpeg)
 set(FFMPEG_PACKAGE_NAME ${FFMPEG_LIBRARY_NAME}:${VCPKG_TARGET_TRIPLET})
-#list(APPEND CMAKE_MODULE_PATH ${VCPKG_INSTALLED_LIB_DIR}/share/ffmpeg)
-#MESSAGE(STATUS "CMAKE_MODULE_PATH:" ${CMAKE_MODULE_PATH})
-
 find_package(${FFMPEG_LIBRARY_NAME})
 IF (NOT ${FFMPEG_LIBRARY_NAME}_FOUND)
     message(STATUS "install ffmpeg")
     execute_process(COMMAND ${VCPKG_EXE_FILE} install ${FFMPEG_PACKAGE_NAME} WORKING_DIRECTORY ${VCPKG_DIR})
 ENDIF()
 
-CPMAddPackage(NAME asio GITHUB_REPOSITORY chriskohlhoff/asio GIT_TAG a71f5232d207b4f3bbd253eb1041e30b5e4ea606 DOWNLOAD_ONLY)
+CPMAddPackage(
+    NAME asio
+    GITHUB_REPOSITORY chriskohlhoff/asio
+    GIT_TAG a71f5232d207b4f3bbd253eb1041e30b5e4ea606 DOWNLOAD_ONLY
+    )
+
+CPMAddPackage(
+    NAME zlib
+    GITHUB_REPOSITORY madler/zlib
+    GIT_TAG 04f42ceca40f73e2978b50e93806c2a18c1281fc
+    OVERRIDE_FIND_PACKAGE
+    )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/engine)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cut)

@@ -1,0 +1,240 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ca1ecf97..6d773121 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -21,7 +21,7 @@ For more information, please visit <http://www.openshot.org/>.
+ -----------------------------------------------------------------")
+ 
+ ################ ADD CMAKE MODULES ##################
+-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
++# set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+ 
+ ################ PROJECT VERSION ####################
+ set(PROJECT_VERSION_FULL "0.3.0")
+@@ -135,8 +135,8 @@ endif()
+ ### Process subdirectories
+ ###
+ add_subdirectory(src)
+-add_subdirectory(examples)
+-add_subdirectory(bindings)
++#add_subdirectory(examples)
++#add_subdirectory(bindings)
+ 
+ ###
+ ### Configure Version.h header
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index ba193baa..e5a8dbde 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -146,7 +146,7 @@ set(CMAKE_MACOSX_RPATH 0)
+ 
+ ############### CREATE LIBRARY #################
+ # Create shared openshot library
+-add_library(openshot SHARED)
++add_library(openshot)
+ 
+ target_sources(openshot PRIVATE
+   ${OPENSHOT_SOURCES}
+@@ -413,20 +413,21 @@ target_link_libraries(openshot PUBLIC OpenMP::OpenMP_CXX)
+ ###
+ 
+ # Find ZeroMQ library (used for socket communication & logging)
+-find_package(ZeroMQ REQUIRED) # Creates libzmq target
++# find_package(libzmq REQUIRED) # Creates libzmq target
+ 
+ # Some platforms package the header-only cppzmq C++ bindings separately,
+ # others (Ubuntu) bundle them in with libzmq itself
+-find_package(cppzmq QUIET) # Creates cppzmq target
++# find_package(cppzmq QUIET) # Creates cppzmq target
+ 
+ # Link ZeroMQ library
+-if (TARGET libzmq)
+-  target_link_libraries(openshot PUBLIC libzmq)
+-endif()
++# if (TARGET libzmq)
++#  target_include_directories(openshot PRIVATE libzmq)
++#  target_link_libraries(openshot PUBLIC ${libzmq_LIBRARY})
++# endif()
+ # Include cppzmq headers, if not bundled into libzmq
+-if (TARGET cppzmq)
+-  target_link_libraries(openshot PUBLIC cppzmq)
+-endif()
++# if (TARGET cppzmq)
++#  target_link_libraries(openshot PUBLIC cppzmq)
++# endif()
+ 
+ ###
+ ### Babl
+diff --git a/src/ZmqLogger.cpp b/src/ZmqLogger.cpp
+index 5607eae5..d18619e5 100644
+--- a/src/ZmqLogger.cpp
++++ b/src/ZmqLogger.cpp
+@@ -39,21 +39,21 @@ ZmqLogger *ZmqLogger::Instance()
+ 		m_pInstance = new ZmqLogger;
+ 
+ 		// init ZMQ variables
+-		m_pInstance->context = NULL;
+-		m_pInstance->publisher = NULL;
+-		m_pInstance->connection = "";
++//		m_pInstance->context = NULL;
++//		m_pInstance->publisher = NULL;
++//		m_pInstance->connection = "";
+ 
+ 		// Default connection
+-		m_pInstance->Connection("tcp://*:5556");
++//		m_pInstance->Connection("tcp://*:5556");
+ 
+ 		// Init enabled to False (force user to call Enable())
+ 		m_pInstance->enabled = false;
+ 
+-		#if USE_RESVG == 1
+-			// Init resvg logging (if needed)
+-			// This can only happen 1 time or it will crash
+-			ResvgRenderer::initLog();
+-		#endif
++//		#if USE_RESVG == 1
++//			// Init resvg logging (if needed)
++//			// This can only happen 1 time or it will crash
++//			ResvgRenderer::initLog();
++//		#endif
+ 	}
+ 
+ 	return m_pInstance;
+@@ -72,32 +72,32 @@ void ZmqLogger::Connection(std::string new_connection)
+ 		// Set new connection
+ 		connection = new_connection;
+ 
+-	if (context == NULL) {
+-		// Create ZMQ Context
+-		context = new zmq::context_t(1);
+-	}
++//	if (context == NULL) {
++//		// Create ZMQ Context
++//		context = new zmq::context_t(1);
++//	}
+ 
+-	if (publisher != NULL) {
+-		// Close an existing bound publisher socket
+-		publisher->close();
+-		publisher = NULL;
+-	}
++//	if (publisher != NULL) {
++//		// Close an existing bound publisher socket
++//		publisher->close();
++//		publisher = NULL;
++//	}
+ 
+-	// Create new publisher instance
+-	publisher = new zmq::socket_t(*context, ZMQ_PUB);
++//	// Create new publisher instance
++//	publisher = new zmq::socket_t(*context, ZMQ_PUB);
+ 
+-	// Bind to the socket
+-	try {
+-		publisher->bind(connection.c_str());
++//	// Bind to the socket
++//	try {
++//		publisher->bind(connection.c_str());
+ 
+-	} catch (zmq::error_t &e) {
+-		std::cout << "ZmqLogger::Connection - Error binding to " << connection << ". Switching to an available port." << std::endl;
+-		connection = "tcp://*:*";
+-		publisher->bind(connection.c_str());
+-	}
++//	} catch (zmq::error_t &e) {
++//		std::cout << "ZmqLogger::Connection - Error binding to " << connection << ". Switching to an available port." << std::endl;
++//		connection = "tcp://*:*";
++//		publisher->bind(connection.c_str());
++//	}
+ 
+-	// Sleeping to allow connection to wake up (0.25 seconds)
+-	std::this_thread::sleep_for(std::chrono::milliseconds(250));
++//	// Sleeping to allow connection to wake up (0.25 seconds)
++//	std::this_thread::sleep_for(std::chrono::milliseconds(250));
+ }
+ 
+ void ZmqLogger::Log(std::string message)
+@@ -110,18 +110,18 @@ void ZmqLogger::Log(std::string message)
+ 	const std::lock_guard<std::recursive_mutex> lock(loggerMutex);
+ 
+ 	// Send message over socket (ZeroMQ)
+-	zmq::message_t reply (message.length());
+-	std::memcpy (reply.data(), message.c_str(), message.length());
+-
+-#if ZMQ_VERSION > ZMQ_MAKE_VERSION(4, 3, 1)
+-	// Set flags for immediate delivery (new API)
+-	publisher->send(reply, zmq::send_flags::dontwait);
+-#else
+-	publisher->send(reply);
+-#endif
++//	zmq::message_t reply (message.length());
++//	std::memcpy (reply.data(), message.c_str(), message.length());
++
++//#if ZMQ_VERSION > ZMQ_MAKE_VERSION(4, 3, 1)
++//	// Set flags for immediate delivery (new API)
++//	publisher->send(reply, zmq::send_flags::dontwait);
++//#else
++//	publisher->send(reply);
++//#endif
+ 
+ 	// Also log to file, if open
+-	LogToFile(message);
++    LogToFile(message);
+ }
+ 
+ // Log message to a file (if path set)
+@@ -161,17 +161,17 @@ void ZmqLogger::Close()
+ 	if (log_file.is_open())
+ 		log_file.close();
+ 
+-	// Close socket (if any)
+-	if (publisher != NULL) {
+-		// Close an existing bound publisher socket
+-		publisher->close();
+-		publisher = NULL;
+-	}
+-
+-	// Terminate zmq threads
+-	if (context != NULL) {
+-        context->close();
+-	}
++//	// Close socket (if any)
++//	if (publisher != NULL) {
++//		// Close an existing bound publisher socket
++//		publisher->close();
++//		publisher = NULL;
++//	}
++
++//	// Terminate zmq threads
++//	if (context != NULL) {
++//        context->close();
++//	}
+ }
+ 
+ // Append debug information
+diff --git a/src/ZmqLogger.h b/src/ZmqLogger.h
+index e2be22e5..98e3a17a 100644
+--- a/src/ZmqLogger.h
++++ b/src/ZmqLogger.h
+@@ -19,7 +19,7 @@
+ #include <mutex>
+ #include <string>
+ 
+-#include <zmq.hpp>
++//#include <zmq.hpp>
+ 
+ namespace openshot {
+ 
+@@ -40,10 +40,10 @@ namespace openshot {
+ 		bool enabled;
+ 
+ 		/// ZMQ Context
+-		zmq::context_t *context;
++//		zmq::context_t *context;
+ 
+ 		/// ZMQ Socket
+-		zmq::socket_t *publisher;
++//		zmq::socket_t *publisher;
+ 
+ 		/// Default constructor
+ 		ZmqLogger(){};  // Don't allow user to create an instance of this singleton

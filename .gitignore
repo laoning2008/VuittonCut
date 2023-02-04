@@ -1,0 +1,3 @@
+build-src-*
+src/CMakeLists.txt.user
+.DS_Store

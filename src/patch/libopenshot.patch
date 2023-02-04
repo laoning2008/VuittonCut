@@ -23,7 +23,7 @@ index ca1ecf97..6d773121 100644
  ###
  ### Configure Version.h header
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index ba193baa..90643f84 100644
+index ba193baa..c2b0af10 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -10,7 +10,7 @@
@@ -35,7 +35,32 @@ index ba193baa..90643f84 100644
  include(GNUInstallDirs)
  
  # Enable IN_LIST in older CMake
-@@ -413,20 +413,21 @@ target_link_libraries(openshot PUBLIC OpenMP::OpenMP_CXX)
+@@ -357,6 +357,24 @@ foreach(ff_comp IN LISTS all_comps)
+   endif()
+ endforeach()
+ 
++IF(APPLE)
++    find_library(COCOA_LIBRARY Cocoa)
++    find_library(COREAUDIO_LIBRARY CoreAudio)
++    find_library(AUDIOTOOLBOX_LIBRARY AudioToolBox)
++    find_library(VIDEOTOOLBOX_LIBRARY VideoToolbox)
++    find_library(COREFOUNDATION_LIBRARY CoreFoundation)
++    find_library(COREMEDIA_LIBRARY CoreMedia)
++    find_library(COREVIDEO_LIBRARY CoreVideo)
++    find_library(CORESERVICE_LIBRARY CoreServices)
++    find_library(SECURITY_LIBRARY Security)
++
++    target_link_libraries(openshot PRIVATE ${COCOA_LIBRARY}
++        ${COREAUDIO_LIBRARY} ${AUDIOTOOLBOX_LIBRARY} ${VIDEOTOOLBOX_LIBRARY}
++        ${COREFOUNDATION_LIBRARY} ${COREMEDIA_LIBRARY} ${COREVIDEO_LIBRARY}
++        ${CORESERVICE_LIBRARY} ${SECURITY_LIBRARY})
++    message(STATUS "framework:" ${COCOA_LIBRARY})
++ENDIF ()
++
+ # Indicate which resampler we linked with, and set a config header flag
+ add_feature_info("FFmpeg ${resample_lib}" TRUE "Audio resampling uses ${resample_lib}")
+ # Set the appropriate flag in OpenShotVersion.h
+@@ -413,20 +431,21 @@ target_link_libraries(openshot PUBLIC OpenMP::OpenMP_CXX)
  ###
  
  # Find ZeroMQ library (used for socket communication & logging)

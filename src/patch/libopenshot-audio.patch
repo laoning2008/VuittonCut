@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5698c85..93a9fe0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -273,8 +273,8 @@ else()
+ endif()
+ 
+ # ZLIB -- uses IMPORTED target ZLIB::ZLIB which has existed since CMake 3.1
+-find_package(ZLIB REQUIRED)
+-target_link_libraries(openshot-audio PUBLIC ZLIB::ZLIB)
++#find_package(ZLIB REQUIRED)
++target_link_libraries(openshot-audio PRIVATE zlibstatic)
+ 
+ # Link with dynamic loader for platform
+ target_link_libraries(openshot-audio PUBLIC ${CMAKE_DL_LIBS})

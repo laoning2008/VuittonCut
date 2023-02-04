@@ -2,10 +2,12 @@ project(engine)
 
 add_library(engine)
 
+message(STATUS "audio patch:" ${CMAKE_SOURCE_DIR}/patch/libopenshot-audio.patch)
 CPMAddPackage(
     NAME libopenshot-audio
     GITHUB_REPOSITORY OpenShot/libopenshot-audio
     GIT_TAG b5bbab66e042d0ddedc33f4d50be1faa733fb321
+    PATCH_COMMAND git checkout . && git apply ${CMAKE_SOURCE_DIR}/patch/libopenshot-audio.patch
     OPTIONS "ENABLE_AUDIO_DOCS OFF" "AUTO_INSTALL_DOCS OFF"
     OVERRIDE_FIND_PACKAGE
     )
@@ -13,7 +15,7 @@ CPMAddPackage(
 CPMAddPackage(NAME libopenshot
     GITHUB_REPOSITORY OpenShot/libopenshot
     GIT_TAG 70e86ef044f74ff734525badeefa44e027916945
-    PATCH_COMMAND git checkout . && git apply ${CMAKE_SOURCE_DIR}/patch/libopenshot_unset_CMAKE_MODULE_PATH_remove_zemq.patch
+    PATCH_COMMAND git checkout . && git apply ${CMAKE_SOURCE_DIR}/patch/libopenshot.patch
     OPTIONS "ENABLE_PARALLEL_CTEST OFF" "ENABLE_PARALLEL_CTEST OFF" "ENABLE_LIB_DOCS OFF"
     OVERRIDE_FIND_PACKAGE
     )

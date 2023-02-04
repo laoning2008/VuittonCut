@@ -23,18 +23,18 @@ index ca1ecf97..6d773121 100644
  ###
  ### Configure Version.h header
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index ba193baa..e5a8dbde 100644
+index ba193baa..90643f84 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -146,7 +146,7 @@ set(CMAKE_MACOSX_RPATH 0)
+@@ -10,7 +10,7 @@
  
- ############### CREATE LIBRARY #################
- # Create shared openshot library
--add_library(openshot SHARED)
-+add_library(openshot)
+ # Collect and display summary of options/dependencies
+ include(FeatureSummary)
+-
++cmake_policy(SET CMP0026 OLD)
+ include(GNUInstallDirs)
  
- target_sources(openshot PRIVATE
-   ${OPENSHOT_SOURCES}
+ # Enable IN_LIST in older CMake
 @@ -413,20 +413,21 @@ target_link_libraries(openshot PUBLIC OpenMP::OpenMP_CXX)
  ###
  
